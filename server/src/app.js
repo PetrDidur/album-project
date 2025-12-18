@@ -12,6 +12,7 @@ const app = express();
 
 app.use("/auth", authRouter);
 
+app.use("/auth", authRouter); 
 app.use("/api", apiRouter);
  
 module.exports = app;
