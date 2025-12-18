@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./SignUpForm.module.css";
-import UserValidate from "../../entities/user/api/UserValidate";
-import UserApi from "../../entities/user/api/UserApi";
+import UserValidate from "../../entities/user/UserValidate";
+import UserApi from "../../entities/user/UserApi";
 import { setAccessToken } from "../../shared/lib/axiosInstance";
 
 function SignUpForm({ setUser }) {
