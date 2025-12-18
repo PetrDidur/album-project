@@ -8,12 +8,10 @@ const authRouter = require("./routes/auth.router");
 
 const app = express();
 
-serverConfig(app);
+// serverConfig(app);
 
 app.use("/auth", authRouter);
 
 app.use("/api", apiRouter);
  
-
-// app.post("/aichat", ChatController.getChats);
-
+module.exports = app;
