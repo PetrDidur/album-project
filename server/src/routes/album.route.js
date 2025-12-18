@@ -1,6 +1,6 @@
 const express = require("express");
 const AlbumController = require("../controllers/album.controller");
-const isValid = require('../../src/middlewares/isValidId');
+const isValid = require('../middlewares/isValidId');
 
 const router = express.Router();
 
