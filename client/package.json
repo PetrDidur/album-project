@@ -10,25 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-<<<<<<< HEAD
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
-=======
-    "axios": "^1.13.2",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router": "^7.11.0"
->>>>>>> fe34b590efadd9761876a68616de34313444058f
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-<<<<<<< HEAD
     "@vitejs/plugin-react-swc": "^4.2.2",
-=======
-    "@vitejs/plugin-react": "^5.1.1",
->>>>>>> fe34b590efadd9761876a68616de34313444058f
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
