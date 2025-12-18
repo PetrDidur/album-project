@@ -1,71 +1,76 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import styles from "../ui/MainPage.module.css";
+// pages/MainPage.jsx
+import React from 'react';
+import { useNavigate } from 'react-router';
+import { Container, Button, Card } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// ВРЕМЕННО: потом заменишь на селектор из стора / контекста
-const useAuth = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  return { user, isAuth: !!user };
-};
-
-export default function MainPage() {
+const MainPage = ({ user }) => {
   const navigate = useNavigate();
-  const { user, isAuth } = useAuth();
+  const isLoggedIn = user.status === "logged";
 
   const handleStart = () => {
-    if (isAuth) {
-      navigate(`/user/${user.id}`);
+    if (isLoggedIn) {
+      navigate('/userPage');
     } else {
-      navigate("/login");
+      navigate('/auth');
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    window.location.reload();
-  };
-
   return (
-    <div className={styles.page}>
-      {/* HEADER */}
-      <header className={styles.header}>
-        <div className={styles.logo}>Logo</div>
-
-        <div className={styles.headerActions}>
-          {!isAuth ? (
+    <Container className="flex-grow-1 d-flex flex-column justify-content-center py-5">
+      <Card className="border-0 shadow mx-auto" style={{ maxWidth: '600px' }}>
+        <Card.Body className="p-5 text-center">
+          
+          {!isLoggedIn ? (
+            // Для НЕзарегистрированного пользователя
             <>
-              <button onClick={() => navigate("/login")}>Войти</button>
-              <button onClick={() => navigate("/login")}>Регистрация</button>
+              <h1 className="display-5 mb-4">Создавайте и храните воспоминания</h1>
+              
+              <p className="text-muted mb-5">
+                Memoria — это платформа для создания красивых цифровых альбомов. 
+                Загружайте фотографии, выбирайте оформление, добавляйте заметки 
+                и делитесь воспоминаниями с близкими.
+              </p>
+              
+              <div className="d-grid">
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  onClick={handleStart}
+                  className="py-3"
+                >
+                  Начать
+                </Button>
+              </div>
             </>
           ) : (
+            // Для зарегистрированного пользователя
             <>
-              <span className={styles.username}>{user.username}</span>
-              <button onClick={handleLogout}>Выход</button>
+              <h1 className="display-5 mb-4">С возвращением, {user.data?.name || ''}!</h1>
+              
+              <p className="text-muted mb-5">
+                Создавайте новые альбомы, редактируйте существующие, 
+                приглашайте друзей для совместной работы. 
+                Все ваши воспоминания в безопасности и всегда под рукой.
+              </p>
+              
+              <div className="d-grid gap-3">
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  onClick={handleStart}
+                  className="py-3"
+                >
+                  Перейти к моим альбомам
+                </Button>
+              </div>
             </>
           )}
-        </div>
-      </header>
-      <main className={styles.content}>
-        <section className={styles.hero}>
-          <h1 className={styles.title}>
-            Добро пожаловать в <br /> MyPhotoAlbum
-          </h1>
-
-          <p className={styles.subtitle}>
-            Создавайте личные фотоальбомы,
-            <br />
-            делитесь воспоминаниями с близкими
-            <br />
-            и экспериментируйте с AI-генерацией изображений
-            <br />в одном удобном пространстве.
-          </p>
-
-          <button className={styles.startButton} onClick={handleStart}>
-            Начать
-          </button>
-        </section>
-      </main>
-    </div>
+          
+        </Card.Body>
+      </Card>
+    </Container>
   );
-}
+};
+
+export default MainPage;

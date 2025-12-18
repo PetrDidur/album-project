@@ -1,46 +1,22 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router";
 import MainPage from "./pages/MainPage";
+import UserPage from "./pages/UserPage";
+import AlbumPage from "./pages/AlbumPage";
 import Layout from "./app/Layout/Layout";
 
 function App() {
+  // Добавьте состояние пользователя здесь
+  const [user, setUser] = useState({ status: "guest", data: null });
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<MainPage />} />
-          {/* <Route path="/userPage" element={<UserPage />} /> */}
-          {/* <Route path="/userPage/albumId" element={<AlbumPage />} /> */}
-          {/* <Route path="/onegift/:giftId" element={<OneGiftPage />} /> */}
+        {/* Явно передайте user и setUser в Layout */}
+        <Route element={<Layout user={user} setUser={setUser} />}>
+          <Route path="/" element={<MainPage user={user} />} />
+          <Route path="/userPage" element={<UserPage />} />
+          <Route path="/album/:albumId" element={<AlbumPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
