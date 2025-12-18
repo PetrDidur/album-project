@@ -4,12 +4,12 @@ import Button from "react-bootstrap/esm/Button";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { NavLink } from "react-router";
-import UserApi from "../../entities/user/api/UserApi";
+// import UserApi from "../../entities/user/UserApi";
 
 export default function Navigation({ setUser, user }) {
   const logoutHandler = async () => {
     try {
-      await UserApi.logout();
+      // await UserApi.logout();
       setUser({ status: "guest", data: null });
     } catch (error) {
       console.log(error);
@@ -20,20 +20,20 @@ export default function Navigation({ setUser, user }) {
     <Navbar bg="primary" data-bs-theme="dark">
       <Container>
         <Navbar.Brand>
-          {user.status === "logged" ? user.data.name : "Про подарки"}
+          {/* {user.status === "logged" ? user.data.name : "Про подарки"} */}
         </Navbar.Brand>
         <Nav className="me-auto">
           <NavLink to="/" className="nav-link">
             Главная
           </NavLink>
-          <NavLink to="/gifts" className="nav-link">
-            Подарки
+          <NavLink to="/userPage" className="nav-link">
+            Страница профиля
           </NavLink>
-          <NavLink to="/dolphin" className="nav-link">
-            Дельфины
+          <NavLink to="/userPage/albumId" className="nav-link">
+            Альбом
           </NavLink>
         </Nav>
-        {user.status !== "logged" && (
+        {/* {user.status !== "logged" && (
           <NavLink
             to="/register"
             className="nav-link"
@@ -41,11 +41,11 @@ export default function Navigation({ setUser, user }) {
           >
             Вход
           </NavLink>
-        )}
+        )} */}
 
-        {user.status === "logged" && (
+        {/* {user.status === "logged" && (
           <Button onClick={logoutHandler}>Выход</Button>
-        )}
+        )} */}
       </Container>
     </Navbar>
   );
