@@ -1,12 +1,15 @@
 const express = require("express");
-const morgan = require("morgan");
+require("dotenv").config();
+const serverConfig = require("./configs/serverConfig");
+const apiRouter = require("./routes/api.route");
 const authRouter = require("./routes/auth.router");
+// const ChatController = require("./controllers/chat.controller");
+app.use("/auth", authRouter); 
 
 const app = express();
 
-app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use("/auth", authRouter); 
+serverConfig(app);
 
-module.exports = app;
+app.use("/api", apiRouter);
+// app.post("/aichat", ChatController.getChats);
+
