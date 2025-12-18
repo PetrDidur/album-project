@@ -1,11 +1,11 @@
 const AlbumService = require("../services/album.service");
 const formatResponse = require("../utils/formatResponse");
-const { Album } = require("../db/models");
+const { Album } = require("../../db/models");
 const fs = require("fs/promises");
 const sharp = require("sharp");
 
 class AlbumController {
-  async getAllAlbums(req, res) {
+  static async getAllAlbums(req, res) {
     try {
       const albums = await AlbumService.getAllAlbums();
       if (albums.length === 0)
@@ -17,7 +17,7 @@ class AlbumController {
       return res.status(500).json(formatResponse(500, "Server Error"));
     }
   }
-  async getAlbumById(req, res) {
+  static async getAlbumById(req, res) {
     try {
       const { id } = req.params;
       const album = await AlbumService.getAlbumById(id);
@@ -29,7 +29,7 @@ class AlbumController {
       return res.status(500).json(formatResponse(500, "Server Error"));
     }
   }
-  async createAlbum(req, res) {
+  static async createAlbum(req, res) {
     try {
       if (!req.file) {
         return res.status(400).json(formatResponse(400, "Загрузите фото"));
@@ -61,7 +61,7 @@ class AlbumController {
       return res.status(500).json(formatResponse(500, "Server Error"));
     }
   }
-  async updateAlbum(req, res) {
+  static async updateAlbum(req, res) {
     try {
       const { id } = req.params;
       const album = await AlbumService.updateAlbum(id);
@@ -89,7 +89,7 @@ class AlbumController {
       return res.status(500).json(formatResponse(500, "Server Error"));
     }
   }
-  async deleteAlbum(req, res) {
+  static async deleteAlbum(req, res) {
     try {
       const { user } = req.locals;
       const { id } = req.params;
@@ -106,7 +106,7 @@ class AlbumController {
       return res.status(500).json(formatResponse(500, "Server Error"));
     }
   }
-  async searchAlbums(req, res) {
+  static async searchAlbums(req, res) {
     try {
       const { filter } = req.query;
       const albums = await AlbumService.searchAlbums(filter);
@@ -121,4 +121,4 @@ class AlbumController {
   }
 }
 
-module.exports = AlbumController();
+module.exports = AlbumController;

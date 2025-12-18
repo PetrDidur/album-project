@@ -1,4 +1,4 @@
-const { Album } = require("../db/models");
+const { Album } = require("../../db/models/album");
 const { Op } = require("sequelize");
 
 class AlbumService {
