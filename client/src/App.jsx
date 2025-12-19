@@ -8,34 +8,22 @@ import SignUpForm from "./features/SignUpForm/SignUpForm";
 import UserApi from "./entities/user/UserApi";
 import axiosInstance, { setAccessToken } from "./shared/lib/axiosInstance";
 import LoginForm from "./features/LoginForm/LoginForm";
+import AiPage from "./pages/AiPage";
 
 function App() {
   const [user, setUser] = useState({ status: "logging", data: null });
 
- useEffect(() => {
-  axiosInstance("/api/auth/refreshTokens")
-    .then(({ data }) => {
-      setUser({ status: "logged", data: data.data.user });
-      setAccessToken(data.data.accessToken);
-    })
-    .catch(() => {
-      setUser({ status: "guest", data: null });
-      setAccessToken("");
-    });
-}, []);
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<MainPage />} user={user} />
-          <Route path="/register" element={<SignUpForm />} />
-          <Route path="/login" element={<LoginForm />} />
-          {/* <Route path="/userPage" element={<UserPage />} /> */}
-          {/* <Route path="/userPage/albumId" element={<AlbumPage />} /> */}
-          {/* <Route path="/onegift/:giftId" element={<OneGiftPage />} /> */}
-  // Добавьте состояние пользователя здесь
-  const [user, setUser] = useState({ status: "guest", data: null });
-
+  useEffect(() => {
+    axiosInstance("/api/auth/refreshTokens")
+      .then(({ data }) => {
+        setUser({ status: "logged", data: data.data.user });
+        setAccessToken(data.data.accessToken);
+      })
+      .catch(() => {
+        setUser({ status: "guest", data: null });
+        setAccessToken("");
+      });
+  }, []);
   return (
     <BrowserRouter>
       <Routes>
@@ -44,6 +32,9 @@ function App() {
           <Route path="/" element={<MainPage user={user} />} />
           <Route path="/userPage" element={<UserPage />} />
           <Route path="/album/:albumId" element={<AlbumPage />} />
+          <Route path="/register" element={<SignUpForm />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/ai" element={<AiPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

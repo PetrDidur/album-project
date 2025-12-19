@@ -31,24 +31,24 @@ class AlbumController {
   }
   static async createAlbum(req, res) {
     try {
-      if (!req.file) {
-        return res.status(400).json(formatResponse(400, "Загрузите фото"));
-      }
-      const name = `image_${Date.now()}.webp`;
-      const outputBuffer = await sharp(req.file.buffer)
-        .webp({ quality: 80 })
-        .toBuffer();
-       await fs.mkdir("./public/img", { recursive: true });
-      await fs.writeFile(`./public/img/${name}`, outputBuffer);
+      // if (!req.file) {
+      //   return res.status(400).json(formatResponse(400, "Загрузите фото"));
+      // }
+      // const name = `image_${Date.now()}.webp`;
+      // const outputBuffer = await sharp(req.file.buffer)
+      //   .webp({ quality: 80 })
+      //   .toBuffer();
+      //  await fs.mkdir("./public/img", { recursive: true });
+      // await fs.writeFile(`./public/img/${name}`, outputBuffer);
         const { user } = res.locals;
       if (!req.body)
         return res.status(400).json(formatResponse(400, "Заполни данные"));
       const { title, desc } = req.body;
-      const { isValid, err } = Album.validate({ title, desc });
-      if (!isValid)
-        return res
-          .status(400)
-          .json(formatResponse(400, "Валидация не прошла", null, err));
+      // const { isValid, err } = Album.validate({ title, desc });
+      // if (!isValid)
+      //   return res
+      //     .status(400)
+      //     .json(formatResponse(400, "Валидация не прошла", null, err));
       const album = await AlbumService.createAlbum({
         title,
         desc,
