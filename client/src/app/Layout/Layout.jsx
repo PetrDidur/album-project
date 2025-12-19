@@ -3,11 +3,12 @@ import Navigation from "../../widgets/Navigation/Navigation";
 import { Outlet } from "react-router";
 import Container from "react-bootstrap/Container";
 
-export default function Layout() {
+// Добавьте параметры функции
+export default function Layout({ setUser, user }) {
   return (
     <>
+      <Navigation setUser={setUser} user={user} />
       <Container>
-        <Navigation />
         <Outlet />
       </Container>
     </>
