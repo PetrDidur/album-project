@@ -9,10 +9,13 @@ export const useAlbums = () => {
   const fetchAlbums = async () => {
     try {
       setLoading(true);
-      const data = await albumApi.getAlbums();
-      setAlbums(data);
+      setError(null);
+      const response = await albumApi.getAlbums();
+      // Предполагаем, что сервер возвращает { success: true, data: [...] }
+      setAlbums(response.data || []);
     } catch (err) {
       setError(err.message);
+      console.error('Ошибка загрузки альбомов:', err);
     } finally {
       setLoading(false);
     }
@@ -24,23 +27,31 @@ export const useAlbums = () => {
 
   const createAlbum = async (albumData) => {
     try {
-      const newAlbum = await albumApi.createAlbum(albumData);
+      const response = await albumApi.createAlbum(albumData);
+      const newAlbum = response.data;
       setAlbums(prev => [...prev, newAlbum]);
       return { success: true, data: newAlbum };
     } catch (err) {
-      return { success: false, error: err.message };
+      return { 
+        success: false, 
+        error: err.response?.data?.message || err.message 
+      };
     }
   };
 
   const updateAlbum = async (albumId, updateData) => {
     try {
-      const updated = await albumApi.updateAlbum(albumId, updateData);
+      const response = await albumApi.updateAlbum(albumId, updateData);
+      const updated = response.data;
       setAlbums(prev => prev.map(album => 
         album.id === albumId ? updated : album
       ));
       return { success: true, data: updated };
     } catch (err) {
-      return { success: false, error: err.message };
+      return { 
+        success: false, 
+        error: err.response?.data?.message || err.message 
+      };
     }
   };
 
@@ -50,22 +61,37 @@ export const useAlbums = () => {
       setAlbums(prev => prev.filter(album => album.id !== albumId));
       return { success: true };
     } catch (err) {
-      return { success: false, error: err.message };
+      return { 
+        success: false, 
+        error: err.response?.data?.message || err.message 
+      };
     }
   };
 
-  const addPhotosToAlbum = async (albumId, photos) => {
+  const addPhotosToAlbum = async (albumId, photoFiles) => {
     try {
-      const result = await albumApi.uploadPhotos(albumId, photos);
-      // Обновляем количество фото в альбоме
-      setAlbums(prev => prev.map(album => 
-        album.id === albumId 
-          ? { ...album, photos: album.photos + photos.length }
-          : album
-      ));
+      const result = await albumApi.uploadPhotos(albumId, photoFiles);
+      
+      // Обновляем конкретный альбом
+      setAlbums(prev => prev.map(album => {
+        if (album.id === albumId) {
+          // Если бэкенд возвращает количество фото - используем его
+          // Иначе инкрементируем счетчик
+          const photoCount = Array.isArray(result) ? result.length : photoFiles.length;
+          return {
+            ...album,
+            photos: (album.photos || 0) + photoCount
+          };
+        }
+        return album;
+      }));
+      
       return { success: true, data: result };
     } catch (err) {
-      return { success: false, error: err.message };
+      return { 
+        success: false, 
+        error: err.response?.data?.message || err.message 
+      };
     }
   };
 

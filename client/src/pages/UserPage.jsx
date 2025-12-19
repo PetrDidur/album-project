@@ -5,44 +5,20 @@ import CreateAlbumModal from '../features/AlbumModals/CreateAlbumModal';
 import RenameAlbumModal from '../features/AlbumModals/RenameAlbumModal';
 import AddPhotosModal from '../features/AlbumModals/AddPhotosModal';
 import DeleteAlbumModal from '../features/AlbumModals/DeleteAlbumModal';
-import { albumApi } from '../entities/album/api';
+import { useAlbums } from '../../src/features/AlbumActions/useAlbums'; // Импортируй хук
 
 const UserPage = () => {
-  // Моковые данные альбомов
-  const [albums, setAlbums] = useState([
-    { 
-      id: 1, 
-      title: "Лето 2023", 
-      photos: 47, 
-      cover: "https://via.placeholder.com/300x200/FF6B6B/FFFFFF?text=Лето+2023",
-      description: "Летний отдых на море"
-    },
-    { 
-      id: 2, 
-      title: "Свадьба", 
-      photos: 123, 
-      cover: "https://via.placeholder.com/300x200/4ECDC4/FFFFFF?text=Свадьба",
-      description: "Наша свадебная церемония"
-    },
-    { 
-      id: 3, 
-      title: "Путешествие в Италию", 
-      photos: 89, 
-      cover: "https://via.placeholder.com/300x200/45B7D1/FFFFFF?text=Италия",
-      description: "Рим, Венеция, Флоренция"
-    },
-    { 
-      id: 4, 
-      title: "Выпускной", 
-      photos: 56, 
-      cover: "https://via.placeholder.com/300x200/96CEB4/FFFFFF?text=Выпускной",
-      description: "Выпускной вечер 2023"
-    },
-  ]);
+  const {
+    albums,
+    loading,
+    error,
+    fetchAlbums,
+    createAlbum,
+    updateAlbum,
+    deleteAlbum,
+    addPhotosToAlbum
+  } = useAlbums();
 
-  // Состояния
-  const [loading] = useState(false);
-  const [error] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: '', variant: 'success' });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -50,7 +26,6 @@ const UserPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedAlbum, setSelectedAlbum] = useState(null);
 
-  // Функции для уведомлений
   const showAlert = (message, variant = 'success') => {
     setAlert({ show: true, message, variant });
     setTimeout(() => {
@@ -62,50 +37,63 @@ const UserPage = () => {
     setAlert(prev => ({ ...prev, show: false }));
   };
 
-  // Функции для работы с альбомами
+  // Обработчик создания альбома
   const handleCreateAlbum = async (albumData) => {
-    const data = await albumApi.createAlbum(albumData);
+    const formData = new FormData();
+    formData.append('title', albumData.title);
+    formData.append('desc', albumData.description || '');
+    formData.append('isPrivate', albumData.isPrivate || false);
     
-    setAlbums(prev => [...prev, data.data]);
-    showAlert(`Альбом "${albumData.title}" создан!`, 'success');
+    if (albumData.coverImage) {
+      formData.append('image', albumData.coverImage);
+    }
+
+    const result = await createAlbum(formData);
+    
+    if (result.success) {
+      showAlert(`Альбом "${albumData.title}" создан!`, 'success');
+      setShowCreateModal(false);
+    } else {
+      showAlert(result.error, 'danger');
+    }
   };
 
+  // Обработчик переименования альбома
   const handleRenameAlbum = async (albumId, newTitle) => {
-    setAlbums(prev => 
-      prev.map(album => 
-        album.id === albumId 
-          ? { ...album, title: newTitle }
-          : album
-      )
-    );
-    showAlert('Альбом переименован!', 'success');
+    const result = await updateAlbum(albumId, { title: newTitle });
+    
+    if (result.success) {
+      showAlert('Альбом переименован!', 'success');
+      setShowRenameModal(false);
+    } else {
+      showAlert(result.error, 'danger');
+    }
   };
 
+  // Обработчик добавления фото
   const handleAddPhotos = async (albumId, photos) => {
-    // Обновляем количество фото
-    setAlbums(prev => 
-      prev.map(album => 
-        album.id === albumId 
-          ? { 
-              ...album, 
-              photos: album.photos + photos.length,
-              // Если у альбома стандартная обложка - меняем на первую загруженную
-              cover: album.cover.includes('placeholder.com') && photos.length > 0
-                ? URL.createObjectURL(photos[0])
-                : album.cover
-            }
-          : album
-      )
-    );
-    showAlert(`${photos.length} фотографий добавлено в альбом!`, 'success');
+    const result = await addPhotosToAlbum(albumId, photos);
+    
+    if (result.success) {
+      showAlert(`${photos.length} фотографий добавлено в альбом!`, 'success');
+      setShowAddPhotosModal(false);
+    } else {
+      showAlert(result.error, 'danger');
+    }
   };
 
+  // Обработчик удаления альбома
   const handleDeleteAlbum = async (albumId) => {
-    const data = await albumApi.deleteAlbum(albumId);
-    setAlbums(prev => [...prev, data.data]);
+    const result = await deleteAlbum(albumId);
+    
+    if (result.success) {
+      showAlert('Альбом удален!', 'warning');
+      setShowDeleteModal(false);
+    } else {
+      showAlert(result.error, 'danger');
+    }
   };
 
-  // Открытие модальных окон
   const openRenameModal = (album) => {
     setSelectedAlbum(album);
     setShowRenameModal(true);
@@ -120,18 +108,15 @@ const UserPage = () => {
     setSelectedAlbum(album);
     setShowDeleteModal(true);
   };
-  useEffect(() => {
-  albumApi.getAlbums()
-    .then(data => {
-      if (data.data.length > 0) {  // только если есть альбомы в базе
-        setAlbums(data.data);
-      }
-    })
-    .catch(err => {
-      console.log(err);
-    });
-}, []);
- 
+
+  if (loading) {
+    return <div className="text-center py-5">Загрузка альбомов...</div>;
+  }
+
+  if (error) {
+    return <Alert variant="danger">Ошибка: {error}</Alert>;
+  }
+
   return (
     <Container className="py-5">
       {/* Уведомления */}
@@ -173,6 +158,21 @@ const UserPage = () => {
         onDelete={openDeleteModal}
       />
 
+      {/* Если альбомов нет */}
+      {albums.length === 0 && !loading && (
+        <div className="text-center py-5">
+          <div className="display-1 text-muted mb-4">📷</div>
+          <h3 className="mb-3">У вас пока нет альбомов</h3>
+          <p className="text-muted mb-4">Создайте свой первый альбом для хранения фотографий</p>
+          <Button 
+            variant="primary"
+            onClick={() => setShowCreateModal(true)}
+          >
+            Создать первый альбом
+          </Button>
+        </div>
+      )}
+
       {/* Модальные окна */}
       <CreateAlbumModal
         show={showCreateModal}
@@ -204,7 +204,7 @@ const UserPage = () => {
       {/* Футер */}
       <footer className="py-4 mt-5 text-center text-muted border-top">
         <div className="small">
-          {/* {albums.length} альбомов • {albums.reduce((sum, album) => sum + album.photos, 0)} фотографий */}
+          {albums.length} альбомов • {albums.reduce((sum, album) => sum + (album.photos || 0), 0)} фотографий
         </div>
       </footer>
     </Container>

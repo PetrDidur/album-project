@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router"; 
 import styles from "./SignUpForm.module.css";
 import UserValidate from "../../entities/user/UserValidate";
 import UserApi from "../../entities/user/UserApi";

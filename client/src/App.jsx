@@ -44,8 +44,8 @@ function App() {
           <Route path="/" element={<MainPage user={user} />} />
           <Route path="/userPage" element={<UserPage />} />
           <Route path="/album/:albumId" element={<AlbumPage />} />
-          <Route path="/register" element={<SignUpForm />} />
-          <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<SignUpForm setUser={setUser}/>} />
+          <Route path="/login" element={<LoginForm setUser={setUser}/>} />
           <Route path="/ai" element={<AiPage />} />
         </Route>
       </Routes>

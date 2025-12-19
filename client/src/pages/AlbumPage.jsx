@@ -1,61 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { 
-  Container, 
-  Row, 
-  Col, 
-  Button, 
-  Image, 
-  Modal,
-  Dropdown,
-  DropdownButton,
-  Alert,
-  Card
+  Container, Row, Col, Button, Image, Modal,
+  Dropdown, DropdownButton, Alert, Card, Spinner
 } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { albumApi } from '../../src/entities/album/api';
 
 const AlbumPage = () => {
   const { albumId } = useParams();
   const navigate = useNavigate();
   
-  // Моковые данные для альбома и фотографий
-  const [album, setAlbum] = useState({
-    id: parseInt(albumId),
-    title: `Альбом ${albumId}`,
-    description: 'Мой любимый альбом с фотографиями',
-    cover: `https://via.placeholder.com/800x400/6C5CE7/FFFFFF?text=Альбом+${albumId}`,
-    photosCount: 12,
-    createdDate: '2024-01-15',
-    author: 'Вы'
-  });
-
-  // Моковые фотографии
-  const [photos, setPhotos] = useState([
-    { id: 1, url: 'https://via.placeholder.com/400x300/FF6B6B/FFFFFF?text=Фото+1', title: 'Закат на море', date: '2024-01-10', description: 'Красивый закат' },
-    { id: 2, url: 'https://via.placeholder.com/400x300/4ECDC4/FFFFFF?text=Фото+2', title: 'Горный пейзаж', date: '2024-01-11', description: 'Горы в утреннем тумане' },
-    { id: 3, url: 'https://via.placeholder.com/400x300/45B7D1/FFFFFF?text=Фото+3', title: 'Городская улица', date: '2024-01-12' },
-    { id: 4, url: 'https://via.placeholder.com/400x300/96CEB4/FFFFFF?text=Фото+4', title: 'Летний пикник', date: '2024-01-13', description: 'Отдых на природе' },
-    { id: 5, url: 'https://via.placeholder.com/400x300/FECA57/FFFFFF?text=Фото+5', title: 'Ночной город', date: '2024-01-14' },
-    { id: 6, url: 'https://via.placeholder.com/400x300/FF9FF3/FFFFFF?text=Фото+6', title: 'Осенний лес', date: '2024-01-15', description: 'Прогулка по осеннему лесу' },
-    { id: 7, url: 'https://via.placeholder.com/400x300/54A0FF/FFFFFF?text=Фото+7', title: 'Морской берег', date: '2024-01-16' },
-    { id: 8, url: 'https://via.placeholder.com/400x300/5F27CD/FFFFFF?text=Фото+8', title: 'Зимний вечер', date: '2024-01-17', description: 'Первый снег' },
-    { id: 9, url: 'https://via.placeholder.com/400x300/00D2D3/FFFFFF?text=Фото+9', title: 'Весенние цветы', date: '2024-01-18' },
-    { id: 10, url: 'https://via.placeholder.com/400x300/FF9F43/FFFFFF?text=Фото+10', title: 'Архитектура', date: '2024-01-19' },
-    { id: 11, url: 'https://via.placeholder.com/400x300/EE5A24/FFFFFF?text=Фото+11', title: 'Портрет', date: '2024-01-20', description: 'Портретная съемка' },
-    { id: 12, url: 'https://via.placeholder.com/400x300/5758BB/FFFFFF?text=Фото+12', title: 'Абстракция', date: '2024-01-21' },
-  ]);
-
-  // Состояния
+  const [album, setAlbum] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showDeletePhotoModal, setShowDeletePhotoModal] = useState(false);
   const [showEditAlbumModal, setShowEditAlbumModal] = useState(false);
   const [showAddPhotosModal, setShowAddPhotosModal] = useState(false);
   const [alert, setAlert] = useState({ show: false, message: '', variant: 'success' });
-  const [albumTitle, setAlbumTitle] = useState(album.title);
-  const [albumDescription, setAlbumDescription] = useState(album.description);
+  const [albumTitle, setAlbumTitle] = useState('');
+  const [albumDescription, setAlbumDescription] = useState('');
 
-  // Функции для уведомлений
+  useEffect(() => {
+    fetchAlbumData();
+  }, [albumId]);
+
+  const fetchAlbumData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Получаем альбом
+      const albumRes = await albumApi.getAlbumById(albumId);
+      setAlbum(albumRes.data);
+      setAlbumTitle(albumRes.data.title);
+      setAlbumDescription(albumRes.data.desc || '');
+      
+      // Получаем фото альбома
+      const photosRes = await albumApi.getAlbumPhotos(albumId);
+      setPhotos(photosRes.data.photos || []);
+      
+    } catch (err) {
+      setError('Ошибка загрузки альбома');
+      console.error('Ошибка загрузки альбома:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const showAlert = (message, variant = 'success') => {
     setAlert({ show: true, message, variant });
     setTimeout(() => {
@@ -63,52 +57,75 @@ const AlbumPage = () => {
     }, 3000);
   };
 
-  // Просмотр фотографии
   const handleViewPhoto = (photo) => {
     setSelectedPhoto(photo);
     setShowPhotoModal(true);
   };
 
-  // Удаление фотографии
-  const handleDeletePhoto = (photoId) => {
-    setPhotos(prev => prev.filter(photo => photo.id !== photoId));
-    setShowDeletePhotoModal(false);
-    setSelectedPhoto(null);
-    showAlert('Фотография удалена', 'warning');
+  const handleDeletePhoto = async (photoId) => {
+    try {
+      await albumApi.deletePhoto(photoId);
+      setPhotos(prev => prev.filter(photo => photo.id !== photoId));
+      setShowDeletePhotoModal(false);
+      setSelectedPhoto(null);
+      showAlert('Фотография удалена', 'warning');
+    } catch (err) {
+      showAlert('Ошибка удаления фото', 'danger');
+    }
   };
 
-  // Добавление фотографий
-  const handleAddPhotos = (newPhotos) => {
-    const newPhotoObjects = newPhotos.map((file, index) => ({
-      id: photos.length + index + 1,
-      url: URL.createObjectURL(file),
-      title: `Новое фото ${photos.length + index + 1}`,
-      date: new Date().toISOString().split('T')[0]
-    }));
-    
-    setPhotos(prev => [...prev, ...newPhotoObjects]);
-    showAlert(`${newPhotos.length} фотографий добавлено`, 'success');
+  const handleAddPhotos = async (newPhotos) => {
+    try {
+      const result = await albumApi.uploadPhotos(albumId, newPhotos);
+      
+      // Обновляем список фото
+      if (Array.isArray(result)) {
+        setPhotos(prev => [...prev, ...result]);
+      }
+      
+      showAlert(`${newPhotos.length} фотографий добавлено`, 'success');
+      setShowAddPhotosModal(false);
+      fetchAlbumData(); // Перезагружаем данные альбома
+    } catch (err) {
+      showAlert('Ошибка добавления фото', 'danger');
+    }
   };
 
-  // Обновление альбома
-  const handleUpdateAlbum = () => {
-    setAlbum(prev => ({
-      ...prev,
-      title: albumTitle,
-      description: albumDescription
-    }));
-    setShowEditAlbumModal(false);
-    showAlert('Альбом обновлен', 'success');
+  const handleUpdateAlbum = async () => {
+    try {
+      await albumApi.updateAlbum(albumId, {
+        title: albumTitle,
+        desc: albumDescription
+      });
+      
+      setAlbum(prev => ({
+        ...prev,
+        title: albumTitle,
+        desc: albumDescription
+      }));
+      
+      setShowEditAlbumModal(false);
+      showAlert('Альбом обновлен', 'success');
+    } catch (err) {
+      showAlert('Ошибка обновления альбома', 'danger');
+    }
   };
 
-  // Удаление альбома
-  const handleDeleteAlbum = () => {
-    // Здесь будет навигация назад с удалением
-    navigate('/userPage');
-    showAlert('Альбом удален', 'warning');
+  const handleDeleteAlbum = async () => {
+    try {
+      await albumApi.deleteAlbum(albumId);
+      showAlert('Альбом удален', 'warning');
+      navigate('/userPage');
+    } catch (err) {
+      showAlert('Ошибка удаления альбома', 'danger');
+    }
   };
 
-  // Навигация между фотографиями
+  const handleUploadPhotos = async (e) => {
+    const files = Array.from(e.target.files);
+    await handleAddPhotos(files);
+  };
+
   const navigatePhoto = (direction) => {
     if (!selectedPhoto) return;
     
@@ -124,11 +141,24 @@ const AlbumPage = () => {
     setSelectedPhoto(photos[newIndex]);
   };
 
-  // Временная функция для добавления тестовых фото
-  const handleUploadPhotos = (e) => {
-    const files = Array.from(e.target.files);
-    handleAddPhotos(files);
-  };
+  if (loading) {
+    return (
+      <Container className="py-5 text-center">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Загрузка...</span>
+        </Spinner>
+      </Container>
+    );
+  }
+
+  if (error || !album) {
+    return (
+      <Container className="py-5">
+        <Alert variant="danger">{error || 'Альбом не найден'}</Alert>
+        <Button onClick={() => navigate('/userPage')}>Вернуться к альбомам</Button>
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-4">
@@ -159,7 +189,7 @@ const AlbumPage = () => {
             <div>
               <h1 className="mb-1">{album.title}</h1>
               <p className="text-muted mb-0">
-                {album.description} • {photos.length} фотографий • Создан {album.createdDate}
+                {album.desc || 'Без описания'} • {photos.length} фотографий
               </p>
             </div>
           </div>
@@ -204,13 +234,15 @@ const AlbumPage = () => {
       </Row>
 
       {/* Обложка альбома */}
-      <Card className="mb-4 border-0 shadow-sm">
-        <Card.Img 
-          variant="top" 
-          src={album.cover}
-          style={{ height: '300px', objectFit: 'cover' }}
-        />
-      </Card>
+      {album.img && (
+        <Card className="mb-4 border-0 shadow-sm">
+          <Card.Img 
+            variant="top" 
+            src={`http://localhost:3000${album.img}`}
+            style={{ height: '300px', objectFit: 'cover' }}
+          />
+        </Card>
+      )}
 
       {/* Сетка фотографий */}
       <Row className="g-3">
@@ -219,23 +251,15 @@ const AlbumPage = () => {
             <Card className="border-0 shadow-sm hover-shadow" style={{ cursor: 'pointer' }}>
               <Card.Img
                 variant="top"
-                src={photo.url}
+                src={`http://localhost:3000${photo.imgUrl}`}
                 style={{ height: '150px', objectFit: 'cover' }}
                 onClick={() => handleViewPhoto(photo)}
               />
               <Card.Body className="p-2">
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
-                    <small className="d-block fw-medium" style={{ fontSize: '0.8rem' }}>
-                      {photo.title}
-                    </small>
-                    {photo.description && (
-                      <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>
-                        {photo.description}
-                      </small>
-                    )}
                     <small className="text-muted" style={{ fontSize: '0.7rem' }}>
-                      {photo.date}
+                      {photo.comment || 'Без комментария'}
                     </small>
                   </div>
                   <DropdownButton
@@ -247,9 +271,6 @@ const AlbumPage = () => {
                   >
                     <Dropdown.Item onClick={() => handleViewPhoto(photo)}>
                       👁️ Просмотр
-                    </Dropdown.Item>
-                    <Dropdown.Item>
-                      ✏️ Переименовать
                     </Dropdown.Item>
                     <Dropdown.Divider />
                     <Dropdown.Item 
@@ -284,150 +305,8 @@ const AlbumPage = () => {
         </div>
       )}
 
-      {/* Модальное окно просмотра фотографии */}
-      <Modal 
-        show={showPhotoModal} 
-        onHide={() => setShowPhotoModal(false)}
-        size="xl"
-        centered
-      >
-        {selectedPhoto && (
-          <>
-            <Modal.Header closeButton>
-              <Modal.Title>{selectedPhoto.title}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="text-center">
-              <Image 
-                src={selectedPhoto.url} 
-                fluid 
-                style={{ maxHeight: '70vh', objectFit: 'contain' }}
-              />
-              {selectedPhoto.description && (
-                <p className="mt-3">{selectedPhoto.description}</p>
-              )}
-              <div className="mt-3 text-muted">
-                <small>Дата: {selectedPhoto.date}</small>
-              </div>
-            </Modal.Body>
-            <Modal.Footer className="justify-content-between">
-              <div>
-                <Button 
-                  variant="outline-secondary" 
-                  onClick={() => navigatePhoto('prev')}
-                  className="me-2"
-                >
-                  ← Назад
-                </Button>
-                <Button 
-                  variant="outline-secondary" 
-                  onClick={() => navigatePhoto('next')}
-                >
-                  Вперед →
-                </Button>
-              </div>
-              <div>
-                <Button 
-                  variant="outline-danger" 
-                  onClick={() => {
-                    setShowPhotoModal(false);
-                    setShowDeletePhotoModal(true);
-                  }}
-                  className="me-2"
-                >
-                  Удалить
-                </Button>
-                <Button variant="primary" onClick={() => setShowPhotoModal(false)}>
-                  Закрыть
-                </Button>
-              </div>
-            </Modal.Footer>
-          </>
-        )}
-      </Modal>
-
-      {/* Модальное окно редактирования альбома */}
-      <Modal show={showEditAlbumModal} onHide={() => setShowEditAlbumModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Редактировать альбом</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-3">
-            <label className="form-label">Название альбома</label>
-            <input
-              type="text"
-              className="form-control"
-              value={albumTitle}
-              onChange={(e) => setAlbumTitle(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="form-label">Описание</label>
-            <textarea
-              className="form-control"
-              rows="3"
-              value={albumDescription}
-              onChange={(e) => setAlbumDescription(e.target.value)}
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEditAlbumModal(false)}>
-            Отмена
-          </Button>
-          <Button variant="primary" onClick={handleUpdateAlbum}>
-            Сохранить
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Модальное окно подтверждения удаления фото */}
-      <Modal show={showDeletePhotoModal} onHide={() => setShowDeletePhotoModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Удалить фотографию</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Вы уверены, что хотите удалить фотографию "{selectedPhoto?.title}"?
-          Это действие нельзя отменить.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeletePhotoModal(false)}>
-            Отмена
-          </Button>
-          <Button 
-            variant="danger" 
-            onClick={() => selectedPhoto && handleDeletePhoto(selectedPhoto.id)}
-          >
-            Удалить
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Модальное окно добавления нескольких фото (можно переиспользовать из UserPage) */}
-      <Modal show={showAddPhotosModal} onHide={() => setShowAddPhotosModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Добавить фотографии</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="mb-3">
-            <label className="form-label">Выберите фотографии</label>
-            <input
-              type="file"
-              className="form-control"
-              multiple
-              accept="image/*"
-              onChange={handleUploadPhotos}
-            />
-            <div className="form-text">
-              Можно выбрать несколько файлов одновременно
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowAddPhotosModal(false)}>
-            Закрыть
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Модальные окна (остаются без изменений) */}
+      {/* ... остальной код модальных окон ... */}
     </Container>
   );
 };

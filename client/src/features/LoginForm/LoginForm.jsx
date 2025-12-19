@@ -1,5 +1,5 @@
 import React, { useState } from "react"; // Добавьте useState
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import styles from "./LoginForm.module.css";
 import UserValidate from "../../entities/user/UserValidate";
 import UserApi from "../../entities/user/UserApi";
