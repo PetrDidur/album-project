@@ -31,12 +31,12 @@ export default function MainPage() {
       {/* HEADER */}
       <header className={styles.header}>
         <div className={styles.logo}>Logo</div>
-
+        
         <div className={styles.headerActions}>
           {!isAuth ? (
             <>
               <button onClick={() => navigate("/login")}>Войти</button>
-              <button onClick={() => navigate("/login")}>Регистрация</button>
+              <button onClick={() => navigate("/register")}>Регистрация</button>
             </>
           ) : (
             <>

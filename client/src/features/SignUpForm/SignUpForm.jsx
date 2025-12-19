@@ -5,19 +5,18 @@ import UserApi from "../../entities/user/UserApi";
 import { setAccessToken } from "../../shared/lib/axiosInstance";
 
 function SignUpForm({ setUser }) {
-  const signUpHandler = async (event) => {
-    try {
-      event.preventDefault();
-      const formData = Object.fromEntries(new FormData(event.target));
-      const { isValid, error } = UserValidate.validateSignUpData(formData);
-      if (!isValid) return alert(error);
-      const res = await UserApi.signup(formData);
-      setUser({ status: "logged", data: res.data.user });
-      setAccessToken(data.data.accessToken);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+   const signUpHandler = async (event) => {
+  try {
+    event.preventDefault();
+    const formData = Object.fromEntries(new FormData(event.target));
+    const { isValid, error } = UserValidate.validateSignUpData(formData);
+    if (!isValid) return alert(error);
+    const res = await UserApi.signup(formData);
+    setUser({ status: "logged", data: res.data.user });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   return (
     <div className={styles.container}>
