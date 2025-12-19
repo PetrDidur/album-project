@@ -54,10 +54,11 @@ class AlbumController {
         desc,
         isPrivate: false,
         userId: user.id,
-        img: name,
+        img: "name",
       });
       return res.status(201).json(formatResponse(201, "Альбом создан", album));
     } catch (error) {
+      console.log(error);
       return res.status(500).json(formatResponse(500, "Server Error"));
     }
   }
@@ -90,22 +91,25 @@ class AlbumController {
     }
   }
   static async deleteAlbum(req, res) {
-    try {
-      const { user } = req.locals;
-      const { id } = req.params;
-      const album = await AlbumService.getAlbumById(id);
-      if (!album) return res.json(formatResponse(200, "Альбом не найден"));
-      if (user.id !== album.userId)
-        return res.json(
-          formatResponse(403, "Вы не можете удалить этот альбом")
-        );
-      const result = await AlbumService.deleteAlbum(id);
-      if (!result) return res.json(formatResponse(200, "Альбом не удалён"));
-      return res.status(204).json(formatResponse(204, "Альбом успешно удалён"));
-    } catch (error) {
-      return res.status(500).json(formatResponse(500, "Server Error"));
-    }
+  try {
+    const { user } = res.locals;
+    const { id } = req.params;
+
+    const album = await Album.findByPk(id, { include: ['photos'] });
+    if (!album) return res.json(formatResponse(404, "Альбом не найден"));
+
+    if (album.userId !== user.id)
+      return res.json(formatResponse(403, "Вы не можете удалить этот альбом"));
+
+    await album.destroy();
+    return res.status(200).json(formatResponse(200, "Альбом успешно удалён"));
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(formatResponse(500, "Server Error"));
   }
+}
+
+
   static async searchAlbums(req, res) {
     try {
       const { filter } = req.query;

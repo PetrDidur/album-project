@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -25,7 +25,6 @@ module.exports = {
       },
       comment: {
         type: Sequelize.TEXT,
-        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -40,10 +39,10 @@ module.exports = {
     });
 
     // Добавляем индекс для оптимизации запросов по albumId
-    await queryInterface.addIndex('Photos', ['albumId']);
+    await queryInterface.addIndex("Photos", ["albumId"]);
   },
 
-  async down(queryInterface, Sequelize) {
+  async down(queryInterface) {
     await queryInterface.dropTable("Photos");
-  }
+  },
 };

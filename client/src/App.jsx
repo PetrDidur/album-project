@@ -24,10 +24,22 @@ function App() {
         setAccessToken("");
       });
   }, []);
+  useEffect(() => {
+    axiosInstance("/api/auth/refreshTokens")
+      .then(({ data }) => {
+        setUser({ status: "logged", data: data.data.user });
+        setAccessToken(data.data.accessToken);
+      })
+      .catch(() => {
+        setUser({ status: "guest", data: null });
+        setAccessToken("");
+      });
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Явно передайте user и setUser в Layout */}
+        {/* Передаём и user, и setUser в Layout */}
         <Route element={<Layout user={user} setUser={setUser} />}>
           <Route path="/" element={<MainPage user={user} />} />
           <Route path="/userPage" element={<UserPage />} />
