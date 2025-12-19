@@ -17,6 +17,16 @@ const MainPage = ({ user }) => {
   };
 
   return (
+    <div className={styles.page}>
+      {/* HEADER */}
+      <header className={styles.header}>
+        <div className={styles.logo}>Logo</div>
+        
+        <div className={styles.headerActions}>
+          {!isAuth ? (
+            <>
+              <button onClick={() => navigate("/login")}>Войти</button>
+              <button onClick={() => navigate("/register")}>Регистрация</button>
     <Container className="flex-grow-1 d-flex flex-column justify-content-center py-5">
       <Card className="border-0 shadow mx-auto" style={{ maxWidth: '600px' }}>
         <Card.Body className="p-5 text-center">

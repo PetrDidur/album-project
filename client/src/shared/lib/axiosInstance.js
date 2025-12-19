@@ -11,7 +11,6 @@ function setAccessToken(newToken) {
   accessToken = newToken;
 }
 
-// отправляем запрос и проверяем наличие заголовков авторизации и токена в загловке
 axiosInstance.interceptors.request.use((config) => {
   if (!config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -35,6 +34,5 @@ axiosInstance.interceptors.response.use(
 );
 
 export { setAccessToken };
-
 
 export default axiosInstance;
