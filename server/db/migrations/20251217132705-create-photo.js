@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -16,14 +16,15 @@ module.exports = {
       },
       comment: {
         type: Sequelize.TEXT,
-        albumId: {
-          type: Sequelize.INTEGER,
-          references: {
-            model: "Albums",
-            key: "id",
-          },
-          onDelete: "CASCADE",
+      },
+      albumId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Albums",
+          key: "id",
         },
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
@@ -37,6 +38,7 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface) {
     await queryInterface.dropTable("Photos");
   },

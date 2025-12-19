@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Container, Alert } from 'react-bootstrap';
 import AlbumList from '../widgets/AlbumList/AlbumList';
 import CreateAlbumModal from '../features/AlbumModals/CreateAlbumModal';
 import RenameAlbumModal from '../features/AlbumModals/RenameAlbumModal';
 import AddPhotosModal from '../features/AlbumModals/AddPhotosModal';
 import DeleteAlbumModal from '../features/AlbumModals/DeleteAlbumModal';
+import { albumApi } from '../entities/album/api';
 
 const UserPage = () => {
   // Моковые данные альбомов
@@ -63,15 +64,9 @@ const UserPage = () => {
 
   // Функции для работы с альбомами
   const handleCreateAlbum = async (albumData) => {
-    const newAlbum = {
-      id: Date.now(), // Используем timestamp как ID
-      title: albumData.title,
-      photos: 0,
-      cover: "https://via.placeholder.com/300x200/6C5CE7/FFFFFF?text=Новый+альбом",
-      description: albumData.description
-    };
+    const data = await albumApi.createAlbum(albumData);
     
-    setAlbums(prev => [...prev, newAlbum]);
+    setAlbums(prev => [...prev, data.data]);
     showAlert(`Альбом "${albumData.title}" создан!`, 'success');
   };
 
@@ -106,8 +101,8 @@ const UserPage = () => {
   };
 
   const handleDeleteAlbum = async (albumId) => {
-    setAlbums(prev => prev.filter(album => album.id !== albumId));
-    showAlert('Альбом удален!', 'warning');
+    const data = await albumApi.deleteAlbum(albumId);
+    setAlbums(prev => [...prev, data.data]);
   };
 
   // Открытие модальных окон
@@ -125,11 +120,18 @@ const UserPage = () => {
     setSelectedAlbum(album);
     setShowDeleteModal(true);
   };
-
-  // Если нужно симулировать загрузку, можно раскомментировать:
-  // if (loading) return <div className="text-center py-5">Загрузка альбомов...</div>;
-  // if (error) return <div className="text-center py-5 text-danger">Ошибка: {error}</div>;
-
+  useEffect(() => {
+  albumApi.getAlbums()
+    .then(data => {
+      if (data.data.length > 0) {  // только если есть альбомы в базе
+        setAlbums(data.data);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+}, []);
+ 
   return (
     <Container className="py-5">
       {/* Уведомления */}
@@ -202,7 +204,7 @@ const UserPage = () => {
       {/* Футер */}
       <footer className="py-4 mt-5 text-center text-muted border-top">
         <div className="small">
-          {albums.length} альбомов • {albums.reduce((sum, album) => sum + album.photos, 0)} фотографий
+          {/* {albums.length} альбомов • {albums.reduce((sum, album) => sum + album.photos, 0)} фотографий */}
         </div>
       </footer>
     </Container>

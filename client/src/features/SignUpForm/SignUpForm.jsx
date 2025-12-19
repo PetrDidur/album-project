@@ -1,22 +1,44 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; 
 import styles from "./SignUpForm.module.css";
 import UserValidate from "../../entities/user/UserValidate";
 import UserApi from "../../entities/user/UserApi";
 import { setAccessToken } from "../../shared/lib/axiosInstance";
 
 function SignUpForm({ setUser }) {
-   const signUpHandler = async (event) => {
-  try {
-    event.preventDefault();
-    const formData = Object.fromEntries(new FormData(event.target));
-    const { isValid, error } = UserValidate.validateSignUpData(formData);
-    if (!isValid) return alert(error);
-    const res = await UserApi.signup(formData);
-    setUser({ status: "logged", data: res.data.user });
-  } catch (error) {
-    console.log(error);
-  }
-};
+  const navigate = useNavigate(); 
+
+  const signUpHandler = async (event) => {
+    try {
+      event.preventDefault();
+      const formData = Object.fromEntries(new FormData(event.target));
+      
+    
+      const apiData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      
+      };
+      
+      const { isValid, error } = UserValidate.validateSignUpData(apiData);
+      if (!isValid) return alert(error);
+      
+      const res = await UserApi.signup(apiData);
+      
+      // Установите пользователя и токен
+      setUser({ status: "logged", data: res.data.user });
+      setAccessToken(res.data.accessToken);
+      
+      // ПЕРЕНАПРАВЛЕНИЕ НА ГЛАВНУЮ СТРАНИЦУ
+      navigate("/"); // или navigate("/", { replace: true })
+      
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Ошибка регистрации");
+    }
+  };
 
   return (
     <div className={styles.container}>

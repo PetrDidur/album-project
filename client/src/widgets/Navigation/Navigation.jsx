@@ -72,14 +72,14 @@ export default function Navigation({ setUser, user }) {
             <>
               <Button 
                 variant="outline-secondary" 
-                onClick={() => navigate('/auth?tab=login')}
+                onClick={() => navigate('/login')}
                 className="me-2"
               >
                 Войти
               </Button>
               <Button 
                 variant="primary" 
-                onClick={() => navigate('/auth?tab=signup')}
+                onClick={() => navigate('/register')}
               >
                 Регистрация
               </Button>

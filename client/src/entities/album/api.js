@@ -1,23 +1,18 @@
+import axiosInstance from "../../shared/lib/axiosInstance";
+
 const API_URL = import.meta.env.VITE_API;
 
 export const albumApi = {
   // Получить все альбомы пользователя
   async getAlbums() {
-    const response = await fetch(`${API_URL}/albums`, {
-      credentials: 'include'
-    });
-    return response.json();
+    const response = await axiosInstance.get(`api/album`)
+    return response.data;
   },
 
   // Создать альбом
   async createAlbum(albumData) {
-    const response = await fetch(`${API_URL}/albums`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(albumData),
-      credentials: 'include'
-    });
-    return response.json();
+    const response = await axiosInstance.post('api/album', albumData);
+    return response.data;
   },
 
   // Обновить альбом
@@ -33,11 +28,8 @@ export const albumApi = {
 
   // Удалить альбом
   async deleteAlbum(albumId) {
-    const response = await fetch(`${API_URL}/albums/${albumId}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
-    return response.json();
+    const response = await axiosInstance.delete(`api/album/${albumId}`);
+    return response.data;
   },
 
   // Загрузить фото в альбом
