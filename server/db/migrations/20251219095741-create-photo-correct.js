@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -10,20 +10,22 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      albumId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Albums",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+      },
       imgUrl: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       comment: {
         type: Sequelize.TEXT,
-        albumId: {
-          type: Sequelize.INTEGER,
-          references: {
-            model: "Albums",
-            key: "id",
-          },
-          onDelete: "CASCADE",
-        },
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -36,8 +38,12 @@ module.exports = {
         defaultValue: Sequelize.fn("now"),
       },
     });
+
+    // Добавляем индекс для оптимизации запросов по albumId
+    await queryInterface.addIndex('Photos', ['albumId']);
   },
-  async down(queryInterface) {
+
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable("Photos");
-  },
+  }
 };

@@ -38,6 +38,9 @@ export default function Navigation({ setUser, user }) {
             <NavLink to="/album" className="nav-link">
               Альбом
             </NavLink>
+            <NavLink to="/ai" className="nav-link">
+              Ai-генерация
+            </NavLink>
           </Nav>
           
           <Navbar.Brand className="mx-auto position-absolute start-50 translate-middle-x">
