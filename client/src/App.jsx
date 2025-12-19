@@ -26,24 +26,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<MainPage />} user={user} />
-          <Route path="/register" element={<SignUpForm />} />
-          <Route path="/login" element={<LoginForm />} />
-          {/* <Route path="/userPage" element={<UserPage />} /> */}
-          {/* <Route path="/userPage/albumId" element={<AlbumPage />} /> */}
-          {/* <Route path="/onegift/:giftId" element={<OneGiftPage />} /> */}
-  // Добавьте состояние пользователя здесь
-  const [user, setUser] = useState({ status: "guest", data: null });
-
-  return (
-    <BrowserRouter>
-      <Routes>
         {/* Явно передайте user и setUser в Layout */}
         <Route element={<Layout user={user} setUser={setUser} />}>
           <Route path="/" element={<MainPage user={user} />} />
           <Route path="/userPage" element={<UserPage />} />
           <Route path="/album/:albumId" element={<AlbumPage />} />
+          <Route path="/" element={<MainPage />} user={user} />
+          <Route path="/register" element={<SignUpForm />} />
+          <Route path="/login" element={<LoginForm />} />
         </Route>
       </Routes>
     </BrowserRouter>
